@@ -1,0 +1,14 @@
+# CPython bytecode
+__pycache__
+*.pyc
+
+# Results
+*.json
+
+# Virtual Environment
+/venv
+/.venv
+
+# Cache dir
+
+/cache
