@@ -80,7 +80,7 @@ async def main() -> None:
         credential=credential,
     )
     with open(f"videos_{keyword}.json", "w+", encoding="utf-8") as f:
-        json.dump(videos, f, ensure_ascii=False, indent=4)
+        json.dump(videos, f, ensure_ascii=False)
 
 
 if __name__ == "__main__":
