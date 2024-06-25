@@ -2,6 +2,12 @@
 
 Simple tool to fetch videos, get hot reviews (with sub reviews) of them.
 
+## Setup
+
+```bash
+python -m pip install -e .
+```
+
 ## Structure
 
 [`review`]: https://github.com/SocialSisterYi/bilibili-API-collect/blob/16d455ff098f46502eca2bafc7b96a2959a82f1b/docs/comment/readme.md#%E8%AF%84%E8%AE%BA%E6%9D%A1%E7%9B%AE%E5%AF%B9%E8%B1%A1
