@@ -18,8 +18,8 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
         except ResponseCodeException as e:
             print(f"{e.__class__}: {e}")
             continue
-        except Exception:
-            print("发生了未知错误")
+        except Exception as e:
+            print(f"搜索失败 {e.__class__}: {e}")
             break
         print(f"fetching page {page} of keyword {keyword}")
         r = [r for r in result["result"] if r["result_type"] == "video"][0]
@@ -36,8 +36,8 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
             except ResponseCodeException as e:
                 print(f"{e.__class__}: {e}")
                 continue
-            except Exception:
-                print("发生了未知错误")
+            except Exception as e:
+                print(f"获取热评失败 {e.__class__}: {e}")
                 continue
             videos.append(
                 {
