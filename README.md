@@ -19,21 +19,27 @@ Simple tool to fetch videos, get hot reviews (with sub reviews) of them.
 
 ## Useful Commands
 
+### Export reviews (with sub-reviews)
+
+```bash
+cat {JSON_FILE} | jq '.[].comments | select( . != null )' | jq -s
+```
+
 ### Count reviews
 
 ```bash
-cat {JSON FILE} | jq .[].comments.[].content.message | wc -l
+cat {JSON_FILE} | jq .[].comments.[].content.message | wc -l
 ```
 
 ### Count sub-reviews
 
 ```bash
-cat {JSON FILE} | jq .[].comments.[].sub_replies.[].content.message | wc -l
+cat {JSON_FILE} | jq .[].comments.[].sub_replies.[].content.message | wc -l
 ```
 
 ### Count hot sub-reviews
 
 ```bash
-cat {JSON FILE} | jq .[].comments.[].replies.[].content.message | wc -l
+cat {JSON_FILE} | jq .[].comments.[].replies.[].content.message | wc -l
 ```
 
