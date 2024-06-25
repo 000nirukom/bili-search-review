@@ -68,9 +68,9 @@ def main():
             # 发送者ID
             "member_id": review["mid"],
             # 发送者性别
-            "member_sex": review["member"]["sex"],
+            "sex": review["member"]["sex"],
             # 发送者昵称
-            "member_nickname": review["member"]["uname"],
+            "nickname": review["member"]["uname"],
             # 评论内容
             "text": review["content"]["message"],
             # IP属地
