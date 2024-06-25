@@ -116,8 +116,8 @@ def main():
     )
     types = {
         "member_id": str,
-        "member_sex": str,
-        "member_nickname": str,
+        "sex": str,
+        "nickname": str,
         "text": str,
         "location": str,
         "like": str,
