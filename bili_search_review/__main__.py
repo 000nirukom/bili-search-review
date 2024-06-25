@@ -13,6 +13,7 @@ from bili_search_review.interval import REPLY_FETCH_INTERVAL
 async def scrap(keyword: str, max_page: int = 50, credential=None):
     videos = []
     for page in range(1, max_page + 1):
+        await asyncio.sleep(PAGE_FETCH_INTERVAL)
         try:
             result = await search.search(keyword, page=page)
         except ResponseCodeException as e:
@@ -20,7 +21,7 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
             continue
         except Exception as e:
             print(f"搜索失败 {e.__class__}: {e}")
-            break
+            continue
         print(f"fetching page {page} of keyword {keyword}")
         r = [r for r in result["result"] if r["result_type"] == "video"][0]
         r = r["data"]
@@ -46,8 +47,6 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
                     "comments": comments,
                 }
             )
-
-        await asyncio.sleep(PAGE_FETCH_INTERVAL)
 
     return videos
 
