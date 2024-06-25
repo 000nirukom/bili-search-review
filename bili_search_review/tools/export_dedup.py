@@ -5,8 +5,7 @@ import pickle
 
 import pandas as pd
 
-# 是否跳过未知地区
-SKIP_UNKNOWN_LOC = True
+SKIP_UNKNOWN_LOC = os.environ.get("SKIP_UNKNOWN_LOC", False)
 
 
 def load_reviews(filename: str):
@@ -112,9 +111,27 @@ def main():
     ) as f:
         json.dump(reviews, f, ensure_ascii=False)
 
-    pd.DataFrame(
+    df = pd.DataFrame(
         reviews,
-    ).to_excel(result_xlsx_path, index=False, engine="xlsxwriter")
+    )
+    types = {
+        "member_id": str,
+        "member_sex": str,
+        "member_nickname": str,
+        "text": str,
+        "location": str,
+        "like": str,
+        "rpid": str,
+        "root_rpid": str,
+        "parent_rpid": str,
+        "publish_time": str,
+        "up_like": bool,
+        "up_reply": bool,
+        "invisible": bool,
+    }
+    for column, type_ in types.items():
+        df[column] = df[column].astype(type_)
+    df.to_excel(result_xlsx_path, index=False, engine="xlsxwriter")
 
 
 if __name__ == "__main__":
