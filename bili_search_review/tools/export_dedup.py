@@ -3,6 +3,8 @@ import sys
 import json
 import pickle
 
+import pandas as pd
+
 # 是否跳过未知地区
 SKIP_UNKNOWN_LOC = True
 
@@ -99,13 +101,20 @@ def main():
     reviews = dedup_reviews(reviews)
 
     result_path, _ = os.path.splitext(data_file)
-    result_path += "_dedup.json"
+
+    result_json_path = f"{result_path}_dedup.json"
+    result_xlsx_path = f"{result_path}_dedup.xlsx"
+
     with open(
-        result_path,
+        result_json_path,
         "w+",
         encoding="utf-8",
     ) as f:
         json.dump(reviews, f, ensure_ascii=False)
+
+    pd.DataFrame(
+        reviews,
+    ).to_excel(result_xlsx_path, index=False, engine="xlsxwriter")
 
 
 if __name__ == "__main__":
