@@ -56,7 +56,7 @@ async def fetch_sub_comments(oid: int, rpid: int, credential=None):
 
     sub_comments = []
 
-    page_size = 10
+    page_size = 20
     for page_index in range(1, (sub_count + page_size - 1) // page_size + 1):
         c = comment.Comment(
             oid=oid,
