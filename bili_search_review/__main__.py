@@ -83,5 +83,9 @@ async def main() -> None:
         json.dump(videos, f, ensure_ascii=False)
 
 
-if __name__ == "__main__":
+def _main():
     asyncio.get_event_loop().run_until_complete(main())
+
+
+if __name__ == "__main__":
+    _main()

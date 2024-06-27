@@ -1,18 +1,23 @@
-[tool.poetry]
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "bili-search-review"
 version = "0.1.0"
+authors = [{ name = "mokurin000" }]
 description = ""
-authors = ["mokurin000 <1348292515@qq.com>"]
-license = "MIT"
 readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["bilibili"]
+license = { text = "MIT" }
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = [
+    "bilibili-api-python~=16.2.0",
+    "pandas~=2.2.2",
+    "xlsxwriter~=3.2.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-bilibili-api-python = "^16.2.0"
-pandas = "^2.2.2"
-xlsxwriter = "^3.2.0"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[project.scripts]
+bili-review-fetch = "bili_search_review.__main__:_main"
+json2pickle = "bili_search_review.tools.json2pickle:main"
