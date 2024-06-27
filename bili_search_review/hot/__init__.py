@@ -38,7 +38,7 @@ async def fetch_comments(reply, credential=None):
     return reply
 
 
-async def fetch_sub_comments(oid: int, rpid: int, credential=None, cache=True):
+async def fetch_sub_comments(oid: int, rpid: int, credential=None):
     """
     Fetch sub-reviews from specified review
 
@@ -65,7 +65,12 @@ async def fetch_sub_comments(oid: int, rpid: int, credential=None, cache=True):
             credential=credential,
         )
         print(f"fetching page {page_index}...")
-        sub = await c.get_sub_comments(page_index=page_index)
+        sub = await c.get_sub_comments(
+            # 页码
+            page_index=page_index,
+            # 页大小
+            page_size=page_size,
+        )
         sub_comments.extend(sub["replies"])
         await asyncio.sleep(SUB_REPLY_PAGE_INTERVAL)
     return sub_comments
