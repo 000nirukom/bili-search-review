@@ -21,6 +21,10 @@ def load_reviews(filename: str):
         comments = video["comments"]
         if comments is None:
             continue
+
+        for comment in comments:
+            comment["_video_title"] = video["title"]
+
         reviews.extend(comments)
 
     sub_reviews = []
@@ -28,10 +32,14 @@ def load_reviews(filename: str):
         comments = review.get("sub_replies", None)
         if comments is None:
             continue
+
+        for comment in comments:
+            comment["_video_title"] = video["title"]
+
         del review["sub_replies"]
         sub_reviews.extend(comments)
 
-    reviews += sub_reviews
+    reviews.extend(sub_reviews)
     return reviews
 
 
@@ -65,6 +73,10 @@ def main():
     reviews = load_reviews(data_file)
     reviews = [
         {
+            # 视频 AVID
+            "avid": review["oid"],
+            # 视频标题
+            "title": review["_video_title"],
             # 发送者ID
             "member_id": review["mid"],
             # 发送者性别
@@ -115,6 +127,7 @@ def main():
         reviews,
     )
     types = {
+        "avid": str,
         "member_id": str,
         "sex": str,
         "nickname": str,
@@ -124,13 +137,20 @@ def main():
         "rpid": str,
         "root_rpid": str,
         "parent_rpid": str,
-        "publish_time": str,
+        "publish_time": int,
         "up_like": bool,
         "up_reply": bool,
         "invisible": bool,
     }
     for column, type_ in types.items():
         df[column] = df[column].astype(type_)
+    # 发布时间设置为 UTC+8 时间
+    df["publish_time"] = (
+        pd.to_datetime(df["publish_time"], unit="s")
+        .dt.tz_localize("UTC")
+        .dt.tz_convert("Asia/Shanghai")
+        .dt.tz_localize(None)
+    )
     df.to_excel(result_xlsx_path, index=False, engine="xlsxwriter")
 
 
