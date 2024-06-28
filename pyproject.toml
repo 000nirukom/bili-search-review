@@ -21,3 +21,6 @@ dependencies = [
 [project.scripts]
 bili-review-fetch = "bili_search_review.__main__:_main"
 json2pickle = "bili_search_review.tools.json2pickle:main"
+
+[tool.setuptools.packages.find]
+include = ["bili_search_review"]
