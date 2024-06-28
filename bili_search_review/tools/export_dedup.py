@@ -34,7 +34,7 @@ def load_reviews(filename: str):
             continue
 
         for comment in comments:
-            comment["_video_title"] = video["title"]
+            comment["_video_title"] = review["_video_title"]
 
         del review["sub_replies"]
         sub_reviews.extend(comments)
