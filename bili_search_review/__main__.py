@@ -19,6 +19,7 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
         except ResponseCodeException as e:
             print(f"{e.__class__}: {e}")
             continue
+        # pylint: disable=broad-except
         except Exception as e:
             print(f"搜索失败 {e.__class__}: {e}")
             continue
@@ -30,6 +31,8 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
             title: str = d["title"]
             title = title.replace('<em class="keyword">', "")
             title = title.replace("</em>", "")
+            author = d["author"]
+            author_mid = d["mid"]
             print(f"fetching comments from av{aid} - {title}...")
             await asyncio.sleep(REPLY_FETCH_INTERVAL)
             try:
@@ -37,6 +40,7 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
             except ResponseCodeException as e:
                 print(f"{e.__class__}: {e}")
                 continue
+            # pylint: disable=broad-except
             except Exception as e:
                 print(f"获取热评失败 {e.__class__}: {e}")
                 continue
@@ -44,6 +48,8 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
                 {
                     "aid": aid,
                     "title": title,
+                    "author": author,
+                    "author_mid": author_mid,
                     "comments": comments,
                 }
             )

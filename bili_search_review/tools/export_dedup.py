@@ -23,7 +23,10 @@ def load_reviews(filename: str):
             continue
 
         for comment in comments:
+            video: dict
             comment["_video_title"] = video["title"]
+            comment["_author"] = video.get("author")
+            comment["_author_mid"] = video.get("author_mid")
 
         reviews.extend(comments)
 
@@ -35,6 +38,8 @@ def load_reviews(filename: str):
 
         for comment in comments:
             comment["_video_title"] = review["_video_title"]
+            comment["_author"] = review["_author"]
+            comment["_author_mid"] = review["_author_mid"]
 
         del review["sub_replies"]
         sub_reviews.extend(comments)
@@ -45,7 +50,7 @@ def load_reviews(filename: str):
 
 def dedup_reviews(reviews: list[dict]):
     dedup_review_set = set()
-    dedup_reviews = []
+    dedup_reviews_ = []
     for review in reviews:
         if SKIP_UNKNOWN_LOC and review["location"] == "未知":
             continue
@@ -55,8 +60,8 @@ def dedup_reviews(reviews: list[dict]):
             continue
 
         dedup_review_set.add(key)
-        dedup_reviews.append(review)
-    return dedup_reviews
+        dedup_reviews_.append(review)
+    return dedup_reviews_
 
 
 def main():
@@ -77,6 +82,10 @@ def main():
             "avid": review["oid"],
             # 视频标题
             "title": review["_video_title"],
+            # 视频作者昵称
+            "author": review["_author"],
+            # 视频作者ID
+            "author_mid": review["_author_mid"],
             # 发送者ID
             "member_id": review["mid"],
             # 发送者性别
@@ -128,6 +137,8 @@ def main():
     )
     types = {
         "avid": str,
+        "author": str,
+        "author_mid": str,
         "member_id": str,
         "sex": str,
         "nickname": str,
