@@ -31,6 +31,9 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
             title: str = d["title"]
             title = title.replace('<em class="keyword">', "")
             title = title.replace("</em>", "")
+            if aid == 0:
+                print(f"Skipping invalid item {title}")
+                continue
             author = d["author"]
             author_mid = d["mid"]
             print(f"fetching comments from av{aid} - {title}...")
