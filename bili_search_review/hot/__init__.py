@@ -50,14 +50,16 @@ async def fetch_sub_comments(oid: int, rpid: int, credential=None):
         type_=comment.CommentResourceType.VIDEO,
         credential=credential,
     )
-    sub = await c.get_sub_comments()
-    sub_count = sub["page"]["count"]
+    page_size = 20
+    print("fetching first page...")
+    first_sub = await c.get_sub_comments(page_size=page_size)
+    sub_count = first_sub["page"]["count"]
     print(f"found {sub_count} sub-reviews")
 
     sub_comments = []
+    sub_comments.extend(first_sub["replies"])
 
-    page_size = 20
-    for page_index in range(1, (sub_count + page_size - 1) // page_size + 1):
+    for page_index in range(2, (sub_count + page_size - 1) // page_size + 1):
         c = comment.Comment(
             oid=oid,
             rpid=rpid,
