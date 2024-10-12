@@ -1,7 +1,6 @@
 import os
 import sys
 import json
-import pickle
 
 import pandas as pd
 
@@ -12,9 +11,6 @@ def load_reviews(filename: str):
     if filename.endswith(".json"):
         with open(filename, mode="r", encoding="utf-8") as f:
             data = json.load(f)
-    if filename.endswith(".pickle"):
-        with open(filename, mode="rb") as f:
-            data = pickle.load(f)
 
     reviews = []
     for video in data:
@@ -30,21 +26,6 @@ def load_reviews(filename: str):
 
         reviews.extend(comments)
 
-    sub_reviews = []
-    for review in reviews:
-        comments = review.get("sub_replies", None)
-        if comments is None:
-            continue
-
-        for comment in comments:
-            comment["_video_title"] = review["_video_title"]
-            comment["_author"] = review["_author"]
-            comment["_author_mid"] = review["_author_mid"]
-
-        del review["sub_replies"]
-        sub_reviews.extend(comments)
-
-    reviews.extend(sub_reviews)
     return reviews
 
 
