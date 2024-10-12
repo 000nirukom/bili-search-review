@@ -12,16 +12,14 @@ requires-python = ">=3.10"
 keywords = ["bilibili"]
 license = { text = "MIT" }
 classifiers = ["Programming Language :: Python :: 3"]
-dependencies = [
-    "bilibili-api-python >= 16.3.0",
-    "pandas~=2.2.2",
-    "tqdm>=4.66.5",
-    "xlsxwriter~=3.2.0",
-]
+dependencies = ["bilibili-api-python >= 16.3.0", "tqdm>=4.66.5"]
 
 [project.scripts]
 bili-review-fetch = "bili_search_review.__main__:_main"
 json2pickle = "bili_search_review.tools.json2pickle:main"
+
+[project.optional-dependencies]
+export = ["pandas>=2.2.3", "xlsxwriter>=3.2.0"]
 
 [tool.setuptools.packages.find]
 include = ["bili_search_review"]

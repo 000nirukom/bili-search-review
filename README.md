@@ -8,6 +8,8 @@ NOTE: `EULA.md` must be accepted.
 
 ```bash
 python -m pip install -e .
+# Optional dependencies for export-dedup
+python -m pip install .[export]
 ```
 
 ## Run

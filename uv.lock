@@ -165,21 +165,25 @@ wheels = [
 
 [[package]]
 name = "bili-search-review"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "bilibili-api-python" },
-    { name = "pandas" },
     { name = "tqdm" },
+]
+
+[package.optional-dependencies]
+export = [
+    { name = "pandas" },
     { name = "xlsxwriter" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "bilibili-api-python", specifier = ">=16.3.0" },
-    { name = "pandas", specifier = "~=2.2.2" },
+    { name = "pandas", marker = "extra == 'export'", specifier = ">=2.2.3" },
     { name = "tqdm", specifier = ">=4.66.5" },
-    { name = "xlsxwriter", specifier = "~=3.2.0" },
+    { name = "xlsxwriter", marker = "extra == 'export'", specifier = ">=3.2.0" },
 ]
 
 [[package]]
