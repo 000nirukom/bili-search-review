@@ -164,6 +164,7 @@ cython_debug/
 # Cache dir
 
 /cache
+/cache_v2
 
 *.zst
 *.pickle

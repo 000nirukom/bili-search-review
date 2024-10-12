@@ -3,11 +3,12 @@ import json
 import os
 
 from bilibili_api import ResponseCodeException, search
-from bilibili_api import login, user
+from bilibili_api import user
 
 from bili_search_review.hot import get_hot_comments
 from bili_search_review.interval import PAGE_FETCH_INTERVAL
 from bili_search_review.interval import REPLY_FETCH_INTERVAL
+from bili_search_review.utils import login_with_qr
 
 
 async def scrap(keyword: str, max_page: int = 50, credential=None):
@@ -62,13 +63,7 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
 
 async def main() -> None:
     print("请登录：")
-    credential = login.login_with_qrcode()  # 二维码登陆
-    try:
-        credential.raise_for_no_bili_jct()  # 判断是否成功
-        credential.raise_for_no_sessdata()  # 判断是否成功
-    except Exception:
-        print("登陆失败。")
-        raise
+    credential = login_with_qr()
     self_info = await user.get_self_info(credential)
     print("欢迎，", self_info["name"], "!")
 
@@ -78,14 +73,13 @@ async def main() -> None:
         return
     max_page = int(input("请输入搜索最大页数 (最高50): "))
     assert max_page <= 50, "页数超出最大限制！"
+
     if os.name == "nt":
         os.system(f"title {keyword}")
-    else:
-        pass
+
     videos = await scrap(
         keyword=keyword,
         max_page=max_page,
-        # 凭证
         credential=credential,
     )
     with open(f"videos_{keyword}.json", "w+", encoding="utf-8") as f:

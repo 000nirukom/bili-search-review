@@ -11,14 +11,12 @@ from bili_search_review.interval import SUB_REPLY_PAGE_INTERVAL
 
 async def fetch_comments(reply, credential=None):
     """
-    This will set the `sub_replies` field,
-
-    which is an array of replies.
+    This will return list of original reply and sub-replies
     """
     oid = reply["oid"]
     rpid = reply["rpid"]
 
-    cache_dir = f"cache/review/{oid}/"
+    cache_dir = f"cache_v2/review/{oid}/"
     os.makedirs(cache_dir, exist_ok=True)
 
     cache_file_path = os.path.join(cache_dir, f"{rpid}.json")
@@ -28,14 +26,15 @@ async def fetch_comments(reply, credential=None):
             return json.load(f)
 
     print(f"fetching sub-reviews for reply {rpid} from av{oid}")
-    reply["sub_replies"] = await fetch_sub_comments(oid, rpid, credential)
+    sub_replies = await fetch_sub_comments(oid, rpid, credential)
 
+    result = [reply] + sub_replies
     with open(cache_file_path, "w+", encoding="utf-8") as f:
-        json.dump(reply, f, ensure_ascii=False)
+        json.dump(result, f, ensure_ascii=False)
 
     # We don't sleep if we skipped
     await asyncio.sleep(SUB_REPLY_INTERVAL)
-    return reply
+    return result
 
 
 async def fetch_sub_comments(oid: int, rpid: int, credential=None):
@@ -88,7 +87,9 @@ async def get_hot_comments(v_aid: int, credential=None):
     )
     replies = hot_comments["replies"]
 
+    total_list = []
     for reply in replies:
-        reply = await fetch_comments(reply, credential)
+        cur_replies = await fetch_comments(reply, credential)
+        total_list.extend(cur_replies)
 
-    return replies
+    return total_list
