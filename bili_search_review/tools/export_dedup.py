@@ -95,6 +95,8 @@ def main():
             "publish_time": review["ctime"],
             # 隐藏评论
             "invisible": review["invisible"],
+            # 硬核lv6
+            "senior": review["member"]["senior"].get("status", 0) == 2,
         }
         for review in reviews
     ]
