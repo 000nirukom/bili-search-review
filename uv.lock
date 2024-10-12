@@ -170,6 +170,7 @@ source = { editable = "." }
 dependencies = [
     { name = "bilibili-api-python" },
     { name = "pandas" },
+    { name = "tqdm" },
     { name = "xlsxwriter" },
 ]
 
@@ -177,6 +178,7 @@ dependencies = [
 requires-dist = [
     { name = "bilibili-api-python", specifier = ">=16.3.0" },
     { name = "pandas", specifier = "~=2.2.2" },
+    { name = "tqdm", specifier = ">=4.66.5" },
     { name = "xlsxwriter", specifier = "~=3.2.0" },
 ]
 

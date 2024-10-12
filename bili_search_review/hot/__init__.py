@@ -1,12 +1,16 @@
 import os
 import json
 import asyncio
+import logging
 
+from tqdm import tqdm
 from bilibili_api import comment
 from bilibili_api.comment import OrderType
 
 from bili_search_review.interval import SUB_REPLY_INTERVAL
 from bili_search_review.interval import SUB_REPLY_PAGE_INTERVAL
+
+logger = logging.getLogger(__name__)
 
 
 async def fetch_comments(reply, credential=None):
@@ -21,11 +25,11 @@ async def fetch_comments(reply, credential=None):
 
     cache_file_path = os.path.join(cache_dir, f"{rpid}.json")
     if os.path.exists(cache_file_path):
-        print(f"skipping fetch sub-reviews from {rpid} due to cache")
+        logger.info(f"skipping rp{rpid}: cache existing")
         with open(cache_file_path, "r", encoding="utf-8") as f:
             return json.load(f)
 
-    print(f"fetching sub-reviews for reply {rpid} from av{oid}")
+    logger.info(f"start: av{oid} - rp{rpid}")
     sub_replies = await fetch_sub_comments(oid, rpid, credential)
 
     result = [reply] + sub_replies
@@ -43,30 +47,31 @@ async def fetch_sub_comments(oid: int, rpid: int, credential=None):
 
     :return: sub-reviews as an array
     """
-    c = comment.Comment(
+    page_size = 20
+    cur_comment = comment.Comment(
         oid=oid,
         rpid=rpid,
         type_=comment.CommentResourceType.VIDEO,
         credential=credential,
     )
-    page_size = 20
-    print("fetching first page...")
-    first_sub = await c.get_sub_comments(page_size=page_size)
+
+    first_sub = await cur_comment.get_sub_comments(page_size=page_size)
     sub_count = first_sub["page"]["count"]
-    print(f"found {sub_count} sub-reviews")
+    logger.info(f"rp{rpid}: {sub_count} sub-reviews")
 
     sub_comments = []
     sub_comments.extend(first_sub["replies"])
 
-    for page_index in range(2, (sub_count + page_size - 1) // page_size + 1):
-        c = comment.Comment(
-            oid=oid,
-            rpid=rpid,
-            type_=comment.CommentResourceType.VIDEO,
-            credential=credential,
-        )
-        print(f"fetching page {page_index}...")
-        sub = await c.get_sub_comments(
+    def round(count: int):
+        return (count + page_size - 1) // page_size
+
+    end = round(sub_count) + 1
+    if end <= 2:
+        return sub_comments
+
+    for page_index in tqdm(range(2, end), desc="Sub-Replies"):
+        logger.info(f"rp{rpid}: fetching page {page_index}")
+        sub = await cur_comment.get_sub_comments(
             # 页码
             page_index=page_index,
             # 页大小
@@ -88,7 +93,7 @@ async def get_hot_comments(v_aid: int, credential=None):
     replies = hot_comments["replies"]
 
     total_list = []
-    for reply in replies:
+    for reply in tqdm(replies, desc="Replies"):
         cur_replies = await fetch_comments(reply, credential)
         total_list.extend(cur_replies)
 
