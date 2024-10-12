@@ -9,6 +9,7 @@ import tqdm.contrib
 import tqdm.contrib.logging
 import tqdm.utils
 
+from bili_search_review import VERSION
 from bili_search_review.scrap import scrap
 from bili_search_review.utils import login_checked
 
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 async def main() -> None:
+    logger.info("BSR %s" % VERSION)
     credential = login_checked()
     if credential is None:
         return
