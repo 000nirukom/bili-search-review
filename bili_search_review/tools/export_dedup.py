@@ -59,6 +59,12 @@ def main():
     reviews = load_reviews(data_file)
     reviews = [
         {
+            # 评论ID
+            "rpid": review["rpid"],
+            # 根评论ID
+            "root_rpid": review["root"],
+            # 父评论ID
+            "parent_rpid": review["parent"],
             # 视频 AVID
             "avid": review["oid"],
             # 视频标题
@@ -67,36 +73,34 @@ def main():
             "author": review["_author"],
             # 视频作者ID
             "author_mid": review["_author_mid"],
+            # 评论内容
+            "text": review["content"]["message"],
             # 发送者ID
             "member_id": review["mid"],
             # 发送者性别
             "sex": review["member"]["sex"],
             # 发送者昵称
             "nickname": review["member"]["uname"],
-            # 评论内容
-            "text": review["content"]["message"],
+            # 发送者用户等级
+            "user_level": review["member"]["level_info"]["current_level"],
+            # 发送者硬核会员
+            "senior": review["member"]["senior"].get("status", 0) == 2,
+            # 发送者大会员 0: 非大会员, 1: 月费大会员, 2: 年费大会员
+            "vip_type": review["member"]["vip"]["vipType"],
             # IP属地
             "location": review["reply_control"]
             .get("location", "IP属地：未知")
             .split("：")[1],
             # 点赞数量
             "like": review["like"],
-            # 评论ID
-            "rpid": review["rpid"],
-            # 根评论ID
-            "root_rpid": review["root"],
-            # 父评论ID
-            "parent_rpid": review["parent"],
             # Up主点赞
             "up_like": review["up_action"]["like"],
             # Up主回复
             "up_reply": review["up_action"]["reply"],
-            # 发布时间
-            "publish_time": review["ctime"],
             # 隐藏评论
             "invisible": review["invisible"],
-            # 硬核lv6
-            "senior": review["member"]["senior"].get("status", 0) == 2,
+            # 发布时间
+            "publish_time": review["ctime"],
         }
         for review in reviews
     ]
