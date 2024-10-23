@@ -2,7 +2,7 @@ import os
 import sys
 import json
 
-import pandas as pd
+import polars as pl
 
 SKIP_UNKNOWN_LOC = os.environ.get("SKIP_UNKNOWN_LOC", False)
 
@@ -65,30 +65,30 @@ def main():
             "root_rpid": review["root"],
             # 父评论ID
             "parent_rpid": review["parent"],
-            # 视频 AVID
-            "avid": review["oid"],
-            # 视频标题
-            "title": review["_video_title"],
-            # 视频作者昵称
-            "author": review["_author"],
-            # 视频作者ID
-            "author_mid": review["_author_mid"],
             # 评论内容
             "text": review["content"]["message"],
-            # 发送者ID
-            "member_id": review["mid"],
-            # 发送者性别
-            "sex": review["member"]["sex"],
+            # 视频 AVID
+            "video_aid": review["oid"],
+            # 视频标题
+            "video_title": review["_video_title"],
+            # 视频作者昵称
+            "author_name": review["_author"],
+            # 视频作者ID
+            "author_mid": review["_author_mid"],
             # 发送者昵称
-            "nickname": review["member"]["uname"],
+            "publisher_name": review["member"]["uname"],
+            # 发送者ID
+            "publisher_mid": review["mid"],
+            # 发送者性别
+            "publisher_sex": review["member"]["sex"],
             # 发送者用户等级
-            "user_level": review["member"]["level_info"]["current_level"],
+            "publisher_level": review["member"]["level_info"]["current_level"],
             # 发送者硬核会员
-            "senior": review["member"]["senior"].get("status", 0) == 2,
+            "publisher_senior": review["member"]["senior"].get("status", 0) == 2,
             # 发送者大会员 0: 非大会员, 1: 月费大会员, 2: 年费大会员
-            "vip_type": review["member"]["vip"]["vipType"],
+            "publisher_vip_type": review["member"]["vip"]["vipType"],
             # IP属地
-            "location": review["reply_control"]
+            "publisher_location": review["reply_control"]
             .get("location", "IP属地：未知")
             .split("：")[1],
             # 点赞数量
@@ -119,37 +119,44 @@ def main():
     ) as f:
         json.dump(reviews, f, ensure_ascii=False)
 
-    df = pd.DataFrame(
-        reviews,
-    )
     types = {
-        "avid": str,
-        "author": str,
-        "author_mid": str,
-        "member_id": str,
-        "sex": str,
-        "nickname": str,
-        "text": str,
-        "location": str,
-        "like": str,
         "rpid": str,
         "root_rpid": str,
         "parent_rpid": str,
-        "publish_time": int,
+        "text": str,
+        "video_aid": str,
+        "video_title": str,
+        "author_name": str,
+        "author_mid": str,
+        "publisher_name": str,
+        "publisher_mid": str,
+        "publisher_sex": str,
+        "publisher_level": int,
+        "publisher_senior": bool,
+        "publisher_vip_type": int,
+        "publisher_location": str,
+        "like": int,
         "up_like": bool,
         "up_reply": bool,
         "invisible": bool,
+        # unix timestamp
+        "publish_time": int,
     }
-    for column, type_ in types.items():
-        df[column] = df[column].astype(type_)
+    df = pl.DataFrame(reviews, schema=types)
     # 发布时间设置为 UTC+8 时间
-    df["publish_time"] = (
-        pd.to_datetime(df["publish_time"], unit="s")
-        .dt.tz_localize("UTC")
-        .dt.tz_convert("Asia/Shanghai")
-        .dt.tz_localize(None)
+    df = df.with_columns(
+        pl.from_epoch(
+            pl.col("publish_time"),
+            time_unit="s",
+        )
+        .dt.replace_time_zone("UTC")
+        .dt.convert_time_zone("Asia/Shanghai")
+        .dt.replace_time_zone(None),
     )
-    df.to_excel(result_xlsx_path, index=False, engine="xlsxwriter")
+    df.write_excel(
+        result_xlsx_path,
+        include_header=True,
+    )
 
 
 if __name__ == "__main__":

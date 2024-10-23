@@ -7,8 +7,8 @@ from tqdm import tqdm
 from bilibili_api import comment
 from bilibili_api.comment import OrderType
 
-from bili_search_review.interval import SUB_REPLY_INTERVAL
-from bili_search_review.interval import SUB_REPLY_PAGE_INTERVAL
+from bili_search_review.interval import INTERVAL_PER_ROOT_REPLY
+from bili_search_review.interval import INTERVAL_PER_SUB_REPLY_PAGE
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ async def fetch_comments(reply, credential=None):
         json.dump(result, f, ensure_ascii=False)
 
     # We don't sleep if we skipped
-    await asyncio.sleep(SUB_REPLY_INTERVAL)
+    await asyncio.sleep(INTERVAL_PER_ROOT_REPLY)
     return result
 
 
@@ -78,7 +78,7 @@ async def fetch_sub_comments(oid: int, rpid: int, credential=None):
             page_size=page_size,
         )
         sub_comments.extend(sub["replies"])
-        await asyncio.sleep(SUB_REPLY_PAGE_INTERVAL)
+        await asyncio.sleep(INTERVAL_PER_SUB_REPLY_PAGE)
     return sub_comments
 
 

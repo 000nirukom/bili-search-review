@@ -5,8 +5,8 @@ from tqdm import tqdm
 from bilibili_api import search
 
 from bili_search_review.hot import get_hot_comments
-from bili_search_review.interval import PAGE_FETCH_INTERVAL
-from bili_search_review.interval import REPLY_FETCH_INTERVAL
+from bili_search_review.interval import INTERVAL_PER_VIDEO_PAGE
+from bili_search_review.interval import INTERVAL_PER_VIDEO
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
     videos = []
     try:
         for page in tqdm(range(1, max_page + 1), desc="Pages"):
-            await asyncio.sleep(PAGE_FETCH_INTERVAL)
+            await asyncio.sleep(INTERVAL_PER_VIDEO_PAGE)
 
             try:
                 result = await search.search(keyword, page=page)
@@ -38,7 +38,7 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
                 author = d["author"]
                 author_mid = d["mid"]
                 logger.info(f"start: av{aid} - {title}")
-                await asyncio.sleep(REPLY_FETCH_INTERVAL)
+                await asyncio.sleep(INTERVAL_PER_VIDEO)
                 try:
                     comments = await get_hot_comments(aid, credential)
                 except Exception as e:

@@ -19,7 +19,10 @@ bili-review-fetch = "bili_search_review.__main__:_main"
 json2pickle = "bili_search_review.tools.json2pickle:main"
 
 [project.optional-dependencies]
-export = ["pandas>=2.2.3", "xlsxwriter>=3.2.0"]
+export = [
+    "polars>=1.11.0",
+    "xlsxwriter>=3.2.0",
+]
 
 [tool.setuptools.packages.find]
 include = ["bili_search_review"]
