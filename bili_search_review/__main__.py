@@ -4,10 +4,10 @@ import logging
 
 
 import tqdm
-from bilibili_api import user
 import tqdm.contrib
 import tqdm.contrib.logging
 import tqdm.utils
+from bilibili_api import user
 
 from bili_search_review import VERSION
 from bili_search_review.scrap import scrap
