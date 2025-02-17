@@ -7,7 +7,10 @@ from tqdm import tqdm
 from bilibili_api import comment
 from bilibili_api.comment import OrderType
 
-from bili_search_review.interval import INTERVAL_PER_ROOT_REPLY
+from bili_search_review.interval import (
+    INTERVAL_PER_ROOT_REPLY,
+    INTERVAL_PER_ROOT_REPLY_PAGE,
+)
 from bili_search_review.interval import INTERVAL_PER_SUB_REPLY_PAGE
 
 logger = logging.getLogger(__name__)
@@ -82,6 +85,38 @@ async def fetch_sub_comments(oid: int, rpid: int, credential=None):
     return sub_comments
 
 
+async def get_all_comments(v_aid: int, credential=None):
+    comments = []
+    page = 1
+    count = 0
+
+    while True:
+        logger.info(f"fetching page {page} for video av{v_aid}...")
+        c = await comment.get_comments(
+            v_aid, comment.CommentResourceType.VIDEO, page, credential=credential
+        )
+
+        replies = c["replies"]
+        if replies is None:
+            break
+
+        comments.extend(replies)
+        count += c["page"]["size"]
+        page += 1
+
+        if count >= c["page"]["count"]:
+            break
+
+        await asyncio.sleep(INTERVAL_PER_ROOT_REPLY_PAGE)
+
+    total_list = []
+    for reply in tqdm(comments, desc="Replies"):
+        cur_replies = await fetch_comments(reply, credential)
+        total_list.extend(cur_replies)
+
+    return total_list
+
+
 async def get_hot_comments(v_aid: int, credential=None):
     # 最热评论
     hot_comments = await comment.get_comments(
@@ -90,10 +125,13 @@ async def get_hot_comments(v_aid: int, credential=None):
         order=OrderType.LIKE,
         credential=credential,
     )
-    replies = hot_comments["replies"]
+    hot_replies = hot_comments["replies"]
+
+    if hot_replies is None:
+        return []
 
     total_list = []
-    for reply in tqdm(replies, desc="Replies"):
+    for reply in tqdm(hot_replies, desc="Replies"):
         cur_replies = await fetch_comments(reply, credential)
         total_list.extend(cur_replies)
 

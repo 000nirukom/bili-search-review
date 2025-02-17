@@ -4,14 +4,19 @@ import logging
 from tqdm import tqdm
 from bilibili_api import search
 
-from bili_search_review.hot import get_hot_comments
+from bili_search_review.hot import get_hot_comments, get_all_comments
 from bili_search_review.interval import INTERVAL_PER_VIDEO_PAGE
 from bili_search_review.interval import INTERVAL_PER_VIDEO
 
 logger = logging.getLogger(__name__)
 
 
-async def scrap(keyword: str, max_page: int = 50, credential=None):
+async def scrap(
+    keyword: str,
+    max_page: int = 50,
+    credential=None,
+    fetch_all=False,
+):
     videos = []
     try:
         for page in tqdm(range(1, max_page + 1), desc="Pages"):
@@ -40,7 +45,10 @@ async def scrap(keyword: str, max_page: int = 50, credential=None):
                 logger.info(f"start: av{aid} - {title}")
                 await asyncio.sleep(INTERVAL_PER_VIDEO)
                 try:
-                    comments = await get_hot_comments(aid, credential)
+                    if fetch_all:
+                        comments = await get_all_comments(aid, credential)
+                    else:
+                        comments = await get_hot_comments(aid, credential)
                 except Exception as e:
                     logger.error(
                         f"Hot comment failed: {e.__class__.__name__}: {e.__cause__}"

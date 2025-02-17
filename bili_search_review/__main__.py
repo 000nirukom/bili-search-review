@@ -32,12 +32,22 @@ async def main() -> None:
     max_page = int(input("Type max page number (<=50): "))
     assert max_page <= 50, "page number exceeds limits!"
 
+    fetch_all = (
+        input(
+            "Would you like to fetch all comments, or just hot comments?\n(always with sub-comments; defaults to n) (Y/n):"
+        )
+        .lower()
+        .strip()
+        .startswith("y")
+    )
+
     logger.info("Starting with keyword %s, max_page %d" % (keyword, max_page))
     with tqdm.contrib.logging.logging_redirect_tqdm():
         videos = await scrap(
             keyword=keyword,
             max_page=max_page,
             credential=credential,
+            fetch_all=fetch_all,
         )
     with open(f"videos_{keyword}.json", "w+", encoding="utf-8") as f:
         json.dump(videos, f, ensure_ascii=False)
