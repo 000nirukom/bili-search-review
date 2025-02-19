@@ -6,6 +6,7 @@ import logging
 from tqdm import tqdm
 from bilibili_api import comment
 from bilibili_api.comment import OrderType
+from bilibili_api.exceptions.ResponseCodeException import ResponseCodeException
 
 from bili_search_review.interval import (
     INTERVAL_PER_ROOT_REPLY,
@@ -33,11 +34,20 @@ async def fetch_comments(reply, credential=None):
             return json.load(f)
 
     logger.info(f"start: av{oid} - rp{rpid}")
-    sub_replies = await fetch_sub_comments(oid, rpid, credential)
+
+    skip_cache = False
+    try:
+        # may fetch partial sub comments here: exception case
+        sub_replies = await fetch_sub_comments(oid, rpid, credential)
+    except ResponseCodeException:
+        sub_replies = []
+        skip_cache = True
 
     result = [reply] + sub_replies
-    with open(cache_file_path, "w+", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False)
+
+    if not skip_cache:
+        with open(cache_file_path, "w+", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False)
 
     # We don't sleep if we skipped
     await asyncio.sleep(INTERVAL_PER_ROOT_REPLY)
@@ -59,6 +69,7 @@ async def fetch_sub_comments(oid: int, rpid: int, credential=None):
     )
 
     first_sub = await cur_comment.get_sub_comments(page_size=page_size)
+
     sub_count = first_sub["page"]["count"]
     logger.info(f"rp{rpid}: {sub_count} sub-reviews")
 
@@ -74,12 +85,16 @@ async def fetch_sub_comments(oid: int, rpid: int, credential=None):
 
     for page_index in tqdm(range(2, end), desc="Sub-Replies"):
         logger.info(f"rp{rpid}: fetching page {page_index}")
-        sub = await cur_comment.get_sub_comments(
-            # 页码
-            page_index=page_index,
-            # 页大小
-            page_size=page_size,
-        )
+        try:
+            sub = await cur_comment.get_sub_comments(
+                # 页码
+                page_index=page_index,
+                # 页大小
+                page_size=page_size,
+            )
+        except ResponseCodeException:
+            return sub_comments
+
         sub_comments.extend(sub["replies"])
         await asyncio.sleep(INTERVAL_PER_SUB_REPLY_PAGE)
     return sub_comments
