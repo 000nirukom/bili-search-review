@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from tqdm import tqdm
-from bilibili_api import search
+from bilibili_api import search, video
 
 from bili_search_review.hot import get_hot_comments, get_all_comments
 from bili_search_review.interval import INTERVAL_PER_VIDEO_PAGE
@@ -68,3 +68,32 @@ async def scrap(
         pass
 
     return videos
+
+
+async def scrap_single(
+    bvid: str,
+    credential=None,
+    fetch_all=False,
+):
+    v = video.Video(bvid=bvid, credential=credential)
+
+    aid = v.get_aid()
+    detail = await v.get_detail()
+    title = detail["title"]
+    author = detail["owner"]["name"]
+    author_mid = detail["owner"]["mid"]
+
+    if fetch_all:
+        comments = await get_all_comments(aid, credential)
+    else:
+        comments = await get_hot_comments(aid, credential)
+
+    return [
+        {
+            "aid": aid,
+            "title": title,
+            "author": author,
+            "author_mid": author_mid,
+            "comments": comments,
+        }
+    ]
