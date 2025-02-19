@@ -29,7 +29,7 @@ async def main() -> None:
     single_video_bvid = None
     keyword = input("Type keyword (leave empty if want single video): ").strip()
     if not keyword:
-        single_video_bvid = input("Type bvid of the video (with 'BV' prefix)").strip()
+        single_video_bvid = input("Type bvid of the video (with 'BV' prefix): ").strip()
         if len(single_video_bvid) != 12:
             logger.error("Please enter valid BVID!")
             return
@@ -46,10 +46,9 @@ async def main() -> None:
         .startswith("y")
     )
 
-    logger.info("Starting with keyword %s, max_page %d" % (keyword, max_page))
-
     with tqdm.contrib.logging.logging_redirect_tqdm():
         if keyword:
+            logger.info("Starting with keyword %s, max_page %d" % (keyword, max_page))
             videos = await scrap(
                 keyword=keyword,
                 max_page=max_page,
@@ -59,6 +58,7 @@ async def main() -> None:
             with open(f"videos_{keyword}.json", "w+", encoding="utf-8") as f:
                 json.dump(videos, f, ensure_ascii=False)
         else:
+            logger.info("Starting with video %s" % single_video_bvid)
             videos = await scrap_single(
                 bvid=single_video_bvid, credential=credential, fetch_all=fetch_all
             )

@@ -79,6 +79,8 @@ async def scrap_single(
 
     aid = v.get_aid()
     detail = await v.get_detail()
+    detail = detail["View"]
+
     title = detail["title"]
     author = detail["owner"]["name"]
     author_mid = detail["owner"]["mid"]
