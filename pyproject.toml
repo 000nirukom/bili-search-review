@@ -22,3 +22,6 @@ export = ["polars>=1.11.0", "xlsxwriter>=3.2.0"]
 
 [tool.setuptools.packages.find]
 include = ["bili_search_review"]
+
+[tool.uv]
+index-url = "https://mirrors.bfsu.edu.cn/pypi/web/simple/"
